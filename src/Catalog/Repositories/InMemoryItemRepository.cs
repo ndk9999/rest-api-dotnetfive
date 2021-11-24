@@ -11,33 +11,36 @@ namespace Catalog.Repositories
             new() { Id = Guid.NewGuid(), Name = "Bronze Shield", Price = 18, CreatedDate = DateTimeOffset.UtcNow }
         };
 
-        public IEnumerable<Item> GetItems()
+        public Task<IEnumerable<Item>> GetItemsAsync()
         {
-            return _items;
+            return Task.FromResult(_items.AsEnumerable());
         }
 
-        public Item GetItem(Guid id)
+        public Task<Item> GetItemAsync(Guid id)
         {
-            return _items.SingleOrDefault(x => x.Id == id);
+            var item = _items.SingleOrDefault(x => x.Id == id);
+            return Task.FromResult(item);
         }
 
-        public void AddItem(Item item)
+        public Task AddItemAsync(Item item)
         {
             _items.Add(item);
+            return Task.CompletedTask;
         }
 
-        public void UpdateItem(Item item)
+        public Task UpdateItemAsync(Item item)
         {
             var idx = _items.FindIndex(x => x.Id == item.Id);
 
-            if (idx < 0) return;
+            if (idx >= 0) _items[idx] = item;
 
-            _items[idx] = item;
+            return Task.CompletedTask;
         }
 
-        public void DeleteItem(Guid id)
+        public Task DeleteItemAsync(Guid id)
         {
             _items.RemoveAll(x => x.Id == id);
+            return Task.CompletedTask;
         }
     }
 }

@@ -19,16 +19,17 @@ namespace Catalog.Controllers
 
         // GET /api/items/
         [HttpGet]
-        public IEnumerable<ItemDto> GetItems()
+        public async Task<IEnumerable<ItemDto>> GetItemsAsync()
         {
-            return _itemRepo.GetItems().Select(x => x.AsDto());
+            var items = await _itemRepo.GetItemsAsync();
+            return items.Select(x => x.AsDto());
         }
 
         // GET /api/items/id
         [HttpGet("{id}")]
-        public ActionResult<ItemDto> GetItem(Guid id)
+        public async Task<ActionResult<ItemDto>> GetItemAsync(Guid id)
         {
-            var item = _itemRepo.GetItem(id);
+            var item = await _itemRepo.GetItemAsync(id);
 
             if (item == null)
             {
@@ -39,7 +40,7 @@ namespace Catalog.Controllers
         }
 
         [HttpPost]
-        public ActionResult<ItemDto> CreateItem([FromBody] CreateItemDto model)
+        public async Task<ActionResult<ItemDto>> CreateItemAsync([FromBody] CreateItemDto model)
         {
             Item item = new()
             {
@@ -49,17 +50,17 @@ namespace Catalog.Controllers
                 CreatedDate = DateTimeOffset.UtcNow
             };
 
-            _itemRepo.AddItem(item);
+            await _itemRepo.AddItemAsync(item);
 
-            return CreatedAtAction(nameof(GetItem), new{item.Id}, item.AsDto());
+            return CreatedAtAction(nameof(GetItemAsync), new{item.Id}, item.AsDto());
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateItem(Guid id, [FromBody] UpdateItemDto model)
+        public async Task<ActionResult> UpdateItemAsync(Guid id, [FromBody] UpdateItemDto model)
         {
             if (id != model.Id) return BadRequest();
 
-            var item = _itemRepo.GetItem(id);
+            var item = await _itemRepo.GetItemAsync(id);
 
             if (item == null) return NotFound();
 
@@ -67,19 +68,19 @@ namespace Catalog.Controllers
                 Name = model.Name,
                 Price = model.Price
             };
-            _itemRepo.UpdateItem(updatedItem);
+            await _itemRepo.UpdateItemAsync(updatedItem);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteItem(Guid id)
+        public async Task<ActionResult> DeleteItemAsync(Guid id)
         {
-            var item = _itemRepo.GetItem(id);
+            var item = await _itemRepo.GetItemAsync(id);
 
             if (item == null) return NotFound();
 
-            _itemRepo.DeleteItem(id);
+            await _itemRepo.DeleteItemAsync(id);
 
             return NoContent();
         }
