@@ -1,14 +1,15 @@
 using BuberBreadkfast.WebApi.Models;
+using ErrorOr;
 
 namespace BuberBreadkfast.WebApi.Services;
 
 public interface IBreakfastService
 {
-    void CreateBreakfast(Breakfast breakfast);
+    ErrorOr<Created> CreateBreakfast(Breakfast breakfast);
 
-    Breakfast GetBreakfast(Guid id);
+    ErrorOr<Breakfast> GetBreakfast(Guid id);
 
-    void UpsertBreakfast(Breakfast breakfast);
+    ErrorOr<UpsertedBreakfastResult> UpsertBreakfast(Breakfast breakfast);
     
-    void DeleteBreakfast(Guid id);
+    ErrorOr<Deleted> DeleteBreakfast(Guid id);
 }
