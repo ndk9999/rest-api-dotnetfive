@@ -1,8 +1,9 @@
-using BuberDinner.Application.Services.Authentication.Commands;
-using BuberDinner.Application.Services.Authentication.Common;
-using BuberDinner.Application.Services.Authentication.Queries;
+using BuberDinner.Application.Authentication.Commands.Register;
+using BuberDinner.Application.Authentication.Common;
+using BuberDinner.Application.Authentication.Queries.Login;
 using BuberDinner.Contracts.Authentication;
 using BuberDinner.Domain.Common.Errors;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuberDinner.Api.Controllers;
@@ -10,25 +11,22 @@ namespace BuberDinner.Api.Controllers;
 [Route("auth")]
 public class AuthenticationController : ApiController
 {
-    private readonly IAuthenticationCommandService _authCommandService;
-    private readonly IAuthenticationQueryService _authQueryService;
-
-    public AuthenticationController(
-        IAuthenticationCommandService authService,
-        IAuthenticationQueryService authQueryService)
+    private readonly ISender _mediator;
+    public AuthenticationController(ISender mediator)
     {
-        _authCommandService = authService;
-        _authQueryService = authQueryService;
+        _mediator = mediator;
     }
 
     [HttpPost("register")]
-    public IActionResult Register(RegisterRequest request)
+    public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var registerResult = _authCommandService.Register(
+        var command = new RegisterCommand(
             request.FirstName,
             request.LastName,
             request.Email,
             request.Password);
+
+        var registerResult = await _mediator.Send(command);
 
         return registerResult.Match(
             authResult => Ok(MapAuthResult(authResult)),
@@ -37,13 +35,12 @@ public class AuthenticationController : ApiController
     }
 
     [HttpPost("login")]
-    public IActionResult Login(LoginRequest request)
+    public async Task<IActionResult> Login(LoginRequest request)
     {
-        var loginResult = _authQueryService.Login(
-            request.Email,
-            request.Password);
+        var loginQuery = new LoginQuery(request.Email, request.Password);
+        var loginResult = await _mediator.Send(loginQuery);
 
-        if (loginResult.IsError && loginResult.FirstError == Errors.Authentication.InvalidCredentials)
+        if (loginResult.IsError && loginResult.FirstError == DomainErrors.Authentication.InvalidCredentials)
         {
             return Problem(
                 statusCode: StatusCodes.Status401Unauthorized,
