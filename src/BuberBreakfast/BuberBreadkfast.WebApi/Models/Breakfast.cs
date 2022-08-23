@@ -89,10 +89,10 @@ public class Breakfast
     public static ErrorOr<Breakfast> From(CreateBreakfastRequest request)
     {
         return Create(
-            request.Name,
-            request.Description,
-            request.StartDateTime,
-            request.EndDateTime,
+            request.BreakfastDetails.Name,
+            request.BreakfastDetails.Description,
+            request.BreakfastDetails.StartDateTime,
+            request.BreakfastDetails.EndDateTime,
             request.Savory,
             request.Sweet
         );
