@@ -1,10 +1,13 @@
+using System.ComponentModel.DataAnnotations;
+using BuberBreadkfast.Contracts.DataAnnotations;
+
 namespace BuberBreadkfast.Contracts.Breakfast;
 
 public record CreateBreakfastRequest(
-    string Name,
+    [MinLength(3), MaxLength(50)] string Name,
     string Description,
-    DateTime StartDateTime,
-    DateTime EndDateTime,
+    [Future] DateTime StartDateTime,
+    [Future] DateTime EndDateTime,
     List<string> Savory,
     List<string> Sweet
 );
